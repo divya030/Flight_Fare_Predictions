@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup,find_packages
 from typing import List
 
 
@@ -7,7 +7,6 @@ PROJECT_NAME = 'Flight Fare Predictions'
 VERSION = '0.0.1'
 AUTHOR = 'Divya'
 DESCRIPTION = 'Predicitng the Price of the Flight Tickets'
-PACKAGES = ['src']
 REQUIREMENTS_FILE_NAME = 'requirements.txt'
 
 def get_requirements_list()->List[str]:
@@ -18,18 +17,15 @@ def get_requirements_list()->List[str]:
     of libraries mentioned in requirements.txt file
     """
     with open(REQUIREMENTS_FILE_NAME) as library_name:
-        library = library_name.readlines()
-        library = [i.replace('\n',"")   for i in library]
-        if '-e .' in library:
-            library.remove('-e .')
-        return library
+        return library_name.readlines().remove('-e .')
+         
 
 setup(
     name= PROJECT_NAME,
     version= VERSION,
     author= AUTHOR,
     description= DESCRIPTION,
-    packages= PACKAGES,
+    packages= find_packages(),
     install_requires = get_requirements_list()
 )
 

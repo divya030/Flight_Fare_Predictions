@@ -34,8 +34,3 @@ class CustomException(Exception):
 
     def __repr__(self) -> str:
         return CustomException.__name__.str()
-    
-
-if __name__ == "__main__":
-    obj = CustomException()
-    print(obj)

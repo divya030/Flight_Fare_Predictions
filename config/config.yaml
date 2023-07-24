@@ -1,13 +1,14 @@
 training_pipeline_config:
-  pipeline_name: Flight Fare 
+  pipeline_name: Flight_Fare 
   artifact_dir: artifact
 
 data_ingestion_config:
-  dataset_download_url: https://www.kaggle.com/datasets/nikhilmittal/flight-fare-prediction-mh/download?datasetVersionNumber=1
-  raw_data_path: raw_data
+  dataset_download_url: https://www.kaggle.com/datasets/nikhilmittal/flight-fare-prediction-mh/download
+  raw_data_dir: raw_data
   tgz_download_dir: tgz_data
-  train_data_path: train
-  test_data_path: test 
+  ingested_dir: ingested_data
+  ingested_train_dir: train
+  ingested_test_dir: test 
 
 
 

@@ -5,7 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+Flight_Fare/artifact
 # Distribution / packaging
 .Python
 build/

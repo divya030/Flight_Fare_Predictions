@@ -1,7 +1,7 @@
 Flask
 sklearn
 pandas
-numpy
-matplotlib
+numpy==1.23
 PyYAML
--e .
+evidently==0.1.51.dev0
+# -e .

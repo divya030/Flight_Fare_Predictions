@@ -12,3 +12,18 @@ columns:
  Price: int64
 
 target_column : Price
+
+numerical_columns:
+  - Date_of_Journey,
+  - Dep_Time,
+  - Arrival_Time,
+  - Duration
+
+
+categorical_columns:
+ - Airline,
+ - Source,
+ - Destination
+
+categorical_columns_label:
+ - Total_Stops

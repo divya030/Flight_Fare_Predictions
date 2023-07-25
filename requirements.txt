@@ -4,4 +4,5 @@ pandas
 numpy==1.23
 PyYAML
 evidently==0.1.51.dev0
+dill
 # -e .

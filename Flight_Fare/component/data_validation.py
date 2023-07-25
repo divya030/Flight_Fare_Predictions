@@ -3,7 +3,8 @@ import sys
 from Flight_Fare.exception import CustomException
 from Flight_Fare.logger import logging
 from Flight_Fare.config.configuration import Configuration
-from Flight_Fare.entity.artifact_entity import DataValidationArtifact
+from Flight_Fare.entity.artifact_entity import *
+from Flight_Fare.entity.config_entity import *
 from Flight_Fare.constant import *
 import pandas as pd 
 from evidently.model_profile import Profile
@@ -14,19 +15,23 @@ import json
 
 
 class Datavalidation:
-    def __init__(self,data_validation_config,data_ingestion_config):
+    def __init__(self,data_validation_config:DataValidationConfig,
+        data_ingestion_artifact:DataIngestionArtifact):
         try:
             logging.info(f"{'>>'*20}Data validation log started.{'<<'*20} ")
-            self.configuration = Configuration()
-            self.data_validation_config = self.configuration.get_data_validation_config()
-            self.data_ingestion_config = self.configuration.get_data_ingestion_config()
+            self.data_validation_config = data_validation_config
+            self.data_ingestion_artifact = data_ingestion_artifact
 
         except Exception as e:
             raise CustomException(sys,e) from e
     def get_train_test_data(self):
         try:
-            train_file_path = self.data_ingestion_config.ingested_train_dir
-            test_file_path = self.data_ingestion_config.ingested_test_dir
+            config = Configuration(CONFIG_FILE_PATH,CURRENT_TIME_STAMP)
+            ingestion = config.get_data_ingestion_config()
+            basename = 'Flight_Fare_Prediction.csv'
+
+            train_file_path = os.path.join(ingestion.ingested_train_dir,basename)
+            test_file_path = os.path.join(ingestion.ingested_test_dir,basename)
 
             return train_file_path,test_file_path
         
@@ -109,24 +114,24 @@ class Datavalidation:
 
     def save_data_drift_report(self):
         try:
-            profile = Profile(sections = [DataDriftProfileSection()])
+            train_file_path,test_file_path = self.get_train_test_data()
 
-            train_file_path, test_file_path = self.get_train_test_data()
+            train_df = pd.read_csv(train_file_path)
+            test_df = pd.read_csv(test_file_path)
 
-            profile.calculate(train_file_path,test_file_path)
-            
-            # convert tot dict format 
+            profile = Profile(sections=[DataDriftProfileSection()])
+
+            profile.calculate(train_df,test_df)
+
             report = json.loads(profile.json())
 
             report_file_path = self.data_validation_config.report_file_path
-            report_name = os.path.dirname(report_file_path)
+            report_dir = os.path.dirname(report_file_path)
+            os.makedirs(report_dir,exist_ok=True)
 
-            os.makedirs(report_name,exist_ok=True)
-
-            with open(report_file_path,"w") as report_path:
-                json.dump(report,report_path,indent=6)
-
-            return report 
+            with open(report_file_path,"w") as report_file:
+                json.dump(report, report_file, indent=6)
+            return report
 
         except Exception as e:
             raise CustomException(sys,e) from e
@@ -151,8 +156,8 @@ class Datavalidation:
 
     def is_data_drift_found(self)->bool:
         try:
-            report = self.save_data_drift_report()
-            self.save_data_drift_report_page
+            self.save_data_drift_report()
+            self.save_data_drift_report_page()
             return True
         except Exception as e:
             raise CustomException(e,sys) from e
@@ -161,7 +166,7 @@ class Datavalidation:
         try:
             self.is_train_test_file_exist()
             self.validate_dataset_schema()
-            self.is_data_drift_found()
+            # self.is_data_drift_found()
             data_validation_artifact = DataValidationArtifact(
                 schema_file_path=self.data_validation_config.schema_file_path,
                 report_file_path=self.data_validation_config.report_file_path,

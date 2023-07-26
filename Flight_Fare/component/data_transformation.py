@@ -23,67 +23,81 @@ class FeatureGenerator(BaseEstimator, TransformerMixin):
     def __init__(self,columns):
         self.columns = columns
 
-    def fit(self):
+    def fit(self,X,y=None):
         return self
     
-    def transform(self):
-        try:
-            # Date_of_Journey
+    def transform(self,X,y=None):
+    
+        if self.columns == 'Date_of_Journey':
+            try:
+                X['journey_day'] = X['Date_of_Journey'].str.split('/').str[0].astype(int)
+                X['journey_month'] = X['Date_of_Journey'].str.split('/').str[1].str[1].astype(int)
 
-            journey_day = self.columns.str.split('/').str[0].astype(int)
-
-            journey_month = self.columns.str.split('/').str[1].str[1].astype(int)
-
-            # self.x.drop('Date_of_Journey',inplace = True,axis = 1)
-
-            # Dep_Time
-
-            Dep_hr = self.columns.str.split(':').str[0].astype(int)
-
-            Dep_min = self.columns.str.split(':').str[1].astype(int)
-
-            # self.x.drop('Dep_Time',inplace = True,axis = 1)
+                # Since we have converted Date_of_Journey column into integers, Now we can drop as it is of no use.
+                # df.drop('Date_of_Journey',inplace = True,axis = 1)
+            except Exception as e:
+                raise CustomException(sys,e)
             
-            # Arrival_Time
+        elif self.columns == 'Dep_Time':
+            try:
+                X['Dep_hr'] = X['Dep_Time'].str.split(':').str[0].astype(int)
+                X['Dep_min'] = X['Dep_Time'].str.split(':').str[1].astype(int)
 
-            Arrival_hr = self.columns.str.split(" ").str[0].str.split(':').str[0].astype(int)
+                # Since we have converted Dep_Time column into integers, Now we can drop as it is of no use.
+                # df.drop('Dep_Time',inplace = True,axis = 1)
 
-            Arrival_min = self.columns.str.split(" ").str[0].str.split(':').str[1].astype(int)
-
-            # self.x.drop('Arrival_Time',inplace = True,axis = 1)
-
-            # Duration
-
-            Duration_hr = 0
-            Duration_min = 0
-
-            duration = list(self.columns)
-
-            for i in range(len(duration)):
-                if 'h' not in duration[i]:
-                    duration[i] = '0h ' + duration[i]
-                    
-                if 'm' not in duration[i]:
-                    duration[i] = duration[i] + ' 0m'
-                    
-            for i in range(len(duration)):
-                hr = int(duration[i].split("h")[0])
-                min_ = int(duration[i].split(" ")[1].split("m")[0])
-                self.x['Duration_hr'][i] = hr
-                self.x['Duration_min'][i] = min_
+            except Exception as e:
+                raise CustomException(sys,e)
             
-            self.x.drop('Duration',inplace = True,axis = 1)
 
-            self.x['Duration_min'].fillna(0,inplace = True)
+        elif self.columns == 'Arrival_Time':
+            try:
+                X['Arrival_hr'] = X['Arrival_Time'].str.split(" ").str[0].str.split(':').str[0].astype(int)
+                X['Arrival_min'] = X['Arrival_Time'].str.split(" ").str[0].str.split(':').str[1].astype(int)
 
 
-            return  self.columns
+                # Since we have converted Dep_Time column into integers, Now we can drop as it is of no use.
+                # df.drop('Arrival_Time',inplace = True,axis = 1)
 
-        except Exception as e:
-            raise CustomException(sys,e) from e
+            except Exception as e:
+                raise CustomException(sys,e)
+            
+
+        elif self.columns == 'Duration':
+            X['Duration_hr'] = 0
+            X['Duration_min'] = 0
         
+            try:
+
+                duration = list(X['Duration'])
+
+                for i in range(len(duration)):
+                    if 'h' not in duration[i]:
+                        duration[i] = '0h ' + duration[i]
+                        
+                    if 'm' not in duration[i]:
+                        duration[i] = duration[i] + ' 0m'
+                        
+                for i in range(len(duration)):
+                    hr = int(duration[i].split("h")[0])
+                    min_ = int(duration[i].split(" ")[1].split("m")[0])
+                    X['Duration_hr'][i] = hr
+                    X['Duration_min'][i] = min_
+                    
+                    
+                # Since we have converted Duration column into integers, Now we can drop as it is of no use.
+
+                # df.drop('Duration',inplace = True,axis = 1)
 
 
+                # Since there are some nan values represting 0 mins , we are replacing those values with 0 
+
+                X['Duration_min'].fillna(0,inplace = True)
+
+            except Exception as e:
+                raise CustomException(sys,e)
+            
+        return X
 
 class DataTransformation:
 
@@ -163,6 +177,69 @@ class DataTransformation:
             test_df = pd.read_csv(test_file_path)
 
             schema = read_yaml_file(file_path=SCHEMA_FILE_PATH)
+
+            target_column_name = schema[TARGET_COLUMN_KEY]
+
+            # Drop missing values 
+            train_df.dropna(inplace = True)
+            test_df.dropna(inplace = True)
+
+            # Drop Trujet airline since it has one entry
+            indexx = train_df[train_df['Airline'] == 'Trujet'].index[0]
+            train_df.drop(index = indexx,inplace = True)
+
+            logging.info(f"Splitting input and target feature from training and testing dataframe.")
+
+            input_feature_train_df = train_df.drop(columns=[target_column_name],axis = 1)
+            input_feature_test_df = test_df.drop(columns=[target_column_name],axis = 1)
+
+            target_feature_train_df = train_df[target_column_name]
+            target_feature_test_df = test_df[target_column_name]
+
+            logging.info(f"Applying preprocessing object on training dataframe and testing dataframe")
+
+            input_feature_train_arr=preprocessing_obj.fit_transform(input_feature_train_df)
+            input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
+
+            train_arr = np.c_[ input_feature_train_arr, np.array(target_feature_train_df)]
+
+            test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
+
+            transformed_train_dir = self.data_transformation_config.transformed_train_dir
+            transformed_test_dir = self.data_transformation_config.transformed_test_dir
+
+            train_file_name = os.path.basename(train_file_path).replace(".csv",".npz")
+            test_file_name = os.path.basename(test_file_path).replace(".csv",".npz")
+
+            transformed_train_file_path = os.path.join(transformed_train_dir, train_file_name)
+            transformed_test_file_path = os.path.join(transformed_test_dir, test_file_name)
+
+            logging.info(f"Saving transformed training and testing array.")
+
+            save_numpy_array_data(file_path=transformed_train_file_path,array=train_arr)
+            save_numpy_array_data(file_path=transformed_test_file_path,array=test_arr)
+
+            preprocessing_obj_file_path = self.data_transformation_config.preprocessed_object_file_path
+
+            logging.info(f"Saving preprocessing object.")
+            save_object(file_path=preprocessing_obj_file_path,obj=preprocessing_obj)
+
+            data_transformation_artifact = DataTransformationArtifact(is_transformed=True,
+            message="Data transformation successfull.",
+            transformed_train_file_path=transformed_train_file_path,
+            transformed_test_file_path=transformed_test_file_path,
+            preprocessed_object_file_path=preprocessing_obj_file_path
+
+            )
+            logging.info(f"Data transformationa artifact: {data_transformation_artifact}")
+            return data_transformation_artifact
+
+            return input_feature_train_arr
+        except Exception as e:
+            raise CustomException(e,sys) from e
+
+    def __del__(self):
+        logging.info(f"{'>>'*30}Data Transformation log completed.{'<<'*30} \n\n")
 
             
 

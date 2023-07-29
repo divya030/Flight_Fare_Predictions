@@ -1,8 +1,9 @@
 Flask
 sklearn
 pandas
-numpy==1.23
+numpy==1.2
 PyYAML
 evidently==0.1.51.dev0
 dill
+shutil
 # -e .

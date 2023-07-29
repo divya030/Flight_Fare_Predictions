@@ -14,16 +14,18 @@ columns:
 target_column : Price
 
 numerical_columns:
-  - Date_of_Journey,
-  - Dep_Time,
-  - Arrival_Time,
+  - Date_of_Journey
+  - Dep_Time
+  - Arrival_Time
   - Duration
 
 
 categorical_columns:
- - Airline,
- - Source,
+ - Airline
+ - Source
  - Destination
-
-categorical_columns_label:
  - Total_Stops
+
+columns_to_remove:
+ - Additional_Info
+ - Route

@@ -53,6 +53,7 @@ NUMERICAL_COLUMN_KEY="numerical_columns"
 CATEGORICAL_COLUMN_KEY = "categorical_columns"
 CATEGORICAL_COLUMN_KEY_LABEL = "categorical_columns_label"
 TARGET_COLUMN_KEY="target_column"
+COLUMNS_TO_REMOVE = 'columns_to_remove'
 
 # Model Training related variables
 

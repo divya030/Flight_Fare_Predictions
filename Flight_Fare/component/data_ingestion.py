@@ -12,9 +12,11 @@ import opendatasets as od
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from Flight_Fare.util.util import read_yaml_file
-
+import openpyxl
 from Flight_Fare.component.data_validation import Datavalidation
 from Flight_Fare.component.data_transformation import DataTransformation
+from Flight_Fare.component.model_trainer import ModelTrainer
+from Flight_Fare.component.model_evaluation import ModelEvaluation
 
 
 class DataIngestion:
@@ -88,9 +90,21 @@ if __name__=="__main__":
     valid = Datavalidation(data_validation_config=DataValidationConfig,data_ingestion_artifact=DataIngestionArtifact)
     valid.initiate_data_validation()
     trans = DataTransformation(data_transformation_config =  DataTransformationConfig,
-                             data_ingestion_artifact =  DataIngestionArtifact,
-                             data_validation_artifact = DataValidationArtifact)
-    print(trans.get_data_transformer_object())
+                                data_ingestion_artifact =  DataIngestionArtifact,
+                                data_validation_artifact = DataValidationArtifact)
+    trans.initiate_data_transformation()
+    model = ModelTrainer(model_trainer_config = ModelTrainerConfig, 
+                            data_transformation_artifact = DataTransformationArtifact)
+
+    model_trainer= model.initiate_model_trainer()
+    model_eval = ModelEvaluation(model_evaluation_config = ModelEvaluationConfig,
+                 data_ingestion_artifact = DataIngestionArtifact,
+                 data_validation_artifact = DataValidationArtifact,
+                 model_trainer_artifact = ModelTrainerArtifact)
+    
+    acc,file = model_eval.initiate_model_evaluation()
+    print(acc,file)
+   
    
     
     

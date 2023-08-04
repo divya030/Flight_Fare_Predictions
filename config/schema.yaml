@@ -25,7 +25,6 @@ categorical_columns:
  - Source
  - Destination
  - Total_Stops
-
-columns_to_remove:
  - Additional_Info
  - Route
+

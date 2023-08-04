@@ -19,7 +19,7 @@ import pandas as pd
 
 
 
-class FeatureGenerator(BaseEstimator,TransformerMixin):
+class Num_FeatureGenerator(BaseEstimator,TransformerMixin):
 
     def fit(self,X,y=None):
         return self
@@ -66,6 +66,21 @@ class FeatureGenerator(BaseEstimator,TransformerMixin):
             
             except Exception as e:
                 raise CustomException(sys,e) from e
+            
+
+
+class Cat_FeatureGenerator(BaseEstimator,TransformerMixin):
+
+    def fit(self,X,y=None):
+        return self
+
+    def transform(self,X,y=None):
+            try:
+                X.drop(['Additional_Info','Route'],inplace = True,axis = 1)
+                return X
+            
+            except Exception as e:
+                raise CustomException(sys,e) from e
 
 
 class DataTransformation:
@@ -93,12 +108,13 @@ class DataTransformation:
             
 
             num_pipeline = Pipeline(steps=[
-                ('feature_generator', FeatureGenerator()),
+                ('num_feature_generator', Num_FeatureGenerator()),
                 ('scaler', StandardScaler())
             ]
             )
 
             cat_pipeline = Pipeline(steps=[
+                ('Cat_feature_generature',Cat_FeatureGenerator()),
                 ('impute', SimpleImputer(strategy="most_frequent")),
                 ('one_hot_encoder', OneHotEncoder()),
                 ('scaler', StandardScaler(with_mean=False))
@@ -142,13 +158,13 @@ class DataTransformation:
             schema = read_yaml_file(file_path=SCHEMA_FILE_PATH)
 
             target_column_name = schema[TARGET_COLUMN_KEY]
-            remove_columns = schema[COLUMNS_TO_REMOVE]
+            # remove_columns = schema[COLUMNS_TO_REMOVE]
 
             # Drop Trujet airline since it has one entry
             indexx = train_df[train_df['Airline'] == 'Trujet'].index[0]
             train_df.drop(index = indexx,inplace = True)
-            train_df.drop(remove_columns,inplace = True,axis = 1)
-            test_df.drop(remove_columns,inplace=True,axis =1)
+            #train_df.drop(remove_columns,inplace = True,axis = 1)
+            #test_df.drop(remove_columns,inplace=True,axis =1)
             
             logging.info(f"Splitting input and target feature from training and testing dataframe.")
 

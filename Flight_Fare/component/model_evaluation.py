@@ -1,5 +1,7 @@
 import os
 import sys
+import yaml
+
 from Flight_Fare.exception import CustomException
 from Flight_Fare.logger import logging
 
@@ -9,6 +11,7 @@ from Flight_Fare.entity.config_entity import *
 from Flight_Fare.constant import *
 from Flight_Fare.util.util import *
 from Flight_Fare.component.model_trainer import ModelTrainer
+from Flight_Fare.component.model_pusher import ModelPusher
 
 
 class ModelEvaluation:
@@ -51,14 +54,14 @@ class ModelEvaluation:
             if os.path.exists(model_evaluation_file_path) == False:
                 os.makedirs(os.path.dirname(model_evaluation_file_path),exist_ok=True)
                 write_yaml_file(model_evaluation_file_path,data)
-                index_number = 0
+                index_number = 1
 
             else:
                 model = read_yaml_file(model_evaluation_file_path)
                 if model is None:
                     logging.info("Not found any existing model. Hence accepting trained model")
                     write_yaml_file(model_evaluation_file_path,data)
-                    index_number = 0
+                    index_number = 1
 
                 else:
                     if model['best_model']['model_accuracy'] < model_accuracy:
@@ -69,7 +72,7 @@ class ModelEvaluation:
                             }
                         }
                         write_yaml_file(model_evaluation_file_path,data)
-                        index_number = 0
+                        index_number = 1
 
             logging.info(f"Model evaluation completed. model metric artifact: {data}")
                 
@@ -83,9 +86,18 @@ class ModelEvaluation:
                 model_evaluation_artifact = ModelEvaluationArtifact(evaluated_model_path=model_evaluation_file_path,
                                                                             is_model_accepted=is_model_accepted)
                 logging.info(f"Model accepted. Model eval artifact {model_evaluation_artifact} created")
-            
-            
-            return model_evaluation_artifact,model_accuracy,is_model_accepted
+
+            basename = 'Accuracy.yaml'
+            acc_file_path = os.path.join(ROOT_DIR,'Accuracy',basename)
+            metric = {'model_accuracy':float(model_accuracy),"is_model_accepted":is_model_accepted}
+
+            os.makedirs(os.path.dirname(acc_file_path),exist_ok=True)
+            write_yaml_file(acc_file_path,metric)
+            index_number = 0
+
+            logging.info(f"{'=' * 20}Model Evaluation log completed.{'=' * 20} ")
+
+            return model_evaluation_artifact
 
         except Exception as e:
             raise CustomException(e, sys) from e

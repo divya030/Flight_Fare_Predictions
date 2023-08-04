@@ -5,6 +5,7 @@ from Flight_Fare.logger import logging
 
 from Flight_Fare.config.configuration import Configuration
 from Flight_Fare.entity.artifact_entity import *
+from Flight_Fare.util.util import *
 from Flight_Fare.component.data_ingestion import DataIngestion
 from Flight_Fare.component.data_validation import Datavalidation
 from Flight_Fare.component.data_transformation import DataTransformation
@@ -45,7 +46,8 @@ class Pipeline(Thread):
 
     def start_data_ingestion(self) -> DataIngestionArtifact:
         try:
-            data_ingestion = DataIngestion(data_ingestion_config = self.config)
+            data_ingestion = DataIngestion(data_ingestion_config = self.config.get_data_ingestion_config(),
+                                           table_name = 'train',keyspace = 'predict')
             return data_ingestion.initiate_data_ingestion()
 
         except Exception as e:
@@ -146,8 +148,12 @@ class Pipeline(Thread):
                                                                     data_validation_artifact=data_validation_artifact,
                                                                     model_trainer_artifact=model_trainer_artifact)
             
-            
-            if model_evaluation_artifact.is_model_accepted == True:
+            acc_file_path = os.path.join(ROOT_DIR,'Accuracy','Accuracy.yaml')
+            acc = read_yaml_file(acc_file_path)
+            accuracy = acc['model_accuracy']
+            model_accepted = acc['is_model_accepted']
+
+            if model_accepted == True:
                 model_pusher_artifact = self.start_model_pusher(model_eval_artifact=model_evaluation_artifact)
                 logging.info(f'Model pusher artifact: {model_pusher_artifact}')
             else:
@@ -166,11 +172,12 @@ class Pipeline(Thread):
                                              execution_time=stop_time - Pipeline.experiment.start_time,
                                              message="Pipeline has been completed.",
                                              experiment_file_path=Pipeline.experiment_file_path,
-                                             is_model_accepted=model_evaluation_artifact.is_model_accepted,
+                                             is_model_accepted=model_accepted,
                                              accuracy=accuracy
                                              )
             logging.info(f"Pipeline experiment: {Pipeline.experiment}")
             self.save_experiment()
+            return
 
         except Exception as e:
             raise CustomException(e, sys) from e
@@ -180,8 +187,50 @@ class Pipeline(Thread):
             self.run_pipeline()
         except Exception as e:
             raise e
+        
+
 
     def save_experiment(self):
+        try:
+            if Pipeline.experiment.experiment_id is not None:
+                experiment = Pipeline.experiment
+                experiment_dict = experiment._asdict()
+                experiment_dict: dict = {key: [value] for key, value in experiment_dict.items()}
+
+                experiment_dict.update({
+                    "created_time_stamp": [datetime.now()],
+                    "experiment_file_path": [os.path.basename(Pipeline.experiment.experiment_file_path)]})
+
+                experiment_report = pd.DataFrame(experiment_dict)
+
+                os.makedirs(os.path.dirname(Pipeline.experiment_file_path), exist_ok=True)
+                if os.path.exists(Pipeline.experiment_file_path):
+                    experiment_report.to_csv(Pipeline.experiment_file_path, index=False, header=False, mode="a")
+                else:
+                    experiment_report.to_csv(Pipeline.experiment_file_path, mode="w", index=False, header=True)
+            else:
+                print("First start experiment")
+        except Exception as e:
+            raise CustomException(e, sys) from e
+
+    @classmethod
+    def get_experiments_status(cls, limit: int = 5) -> pd.DataFrame:
+        try:
+            if os.path.exists(Pipeline.experiment_file_path):
+                df = pd.read_csv(Pipeline.experiment_file_path)
+                limit = -1 * int(limit)
+                return df[limit:].drop(columns=["experiment_file_path", "initialization_timestamp"], axis=1)
+            else:
+                return pd.DataFrame()
+        except Exception as e:
+            raise CustomException(e, sys) from e
+        
+
+
+
+
+
+    """def save_experiment(self):
         try:
             if Pipeline.experiment.experiment_id is not None:
                 experiment = Pipeline.experiment
@@ -208,10 +257,17 @@ class Pipeline(Thread):
         try:
             if os.path.exists(Pipeline.experiment_file_path):
                 df = pd.read_csv(Pipeline.experiment_file_path)
-                # limit = -1 * int(limit)
-                # return df[limit:].drop(columns=["experiment_file_path", "initialization_timestamp"], axis=1)
-                return df
+                limit = -1 * int(limit)
+                return df[limit:].drop(columns=["experiment_file_path", "initialization_timestamp"], axis=1)
+                #return df
             else:
                 return pd.DataFrame()
         except Exception as e:
             raise CustomException(e, sys) from e
+        """
+
+
+"""if __name__=="__main__":
+    config_path = os.path.join("config","config.yaml")
+    pipeline = Pipeline(Configuration(config_file_path=config_path))
+    pipeline.start_data_ingestion()"""

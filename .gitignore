@@ -51,6 +51,7 @@ coverage.xml
 .pytest_cache/
 cover/
 
+
 # Translations
 *.mo
 *.pot
@@ -82,7 +83,8 @@ target/
 profile_default/
 ipython_config.py
 trial.ipynb
-
+trial_1.ipynb
+Accuracy
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
 #   intended to run in multiple environments; otherwise, check them in:

@@ -1,4 +1,20 @@
 from flask import Flask, request
+
+
+app = Flask(__name__)
+
+
+@app.route('/via_postman', methods=['POST']) # for calling the API from Postman/SOAPUI
+def math_operation_via_postman():
+    if (request.method=='POST'):
+        print('Thank you ')
+
+
+
+if __name__ == "__main__":
+    app.run(debug=True,port=5000)
+
+
 import sys
 
 import pip
@@ -28,10 +44,6 @@ from Flight_Fare.logger import CURRENT_TIME_STAMP
 FLIGHT_FARE_DATA_KEY = "Flight_Fare_Data"
 FLIGHT_FARE_PRICE_VALUE_KEY = "Flight_Fare_Price"
 
-app = Flask(__name__)
-
-@app.route('/predict', methods=['POST'])
-def predict():
     context = {
         FLIGHT_FARE_DATA_KEY: None,
         FLIGHT_FARE_PRICE_VALUE_KEY: None
@@ -70,8 +82,3 @@ def predict():
             FLIGHT_FARE_PRICE_VALUE_KEY: Flight_Fare_value,
         }
         return context[FLIGHT_FARE_PRICE_VALUE_KEY][0]
-    
-
-
-if __name__ == "__main__":
-    app.run(debug=True,port=5000)

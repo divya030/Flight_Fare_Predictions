@@ -1,4 +1,4 @@
->## **Summary** 
+> ##**Summary** 
 
 >> This project aims to predict flight fares based on various features such as departure date and time, arrival date and time, total stops, airline, source, and destination. The prediction model is built using a RandomForestRegressor algorithm.
 

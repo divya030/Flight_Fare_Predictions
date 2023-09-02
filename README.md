@@ -12,16 +12,16 @@
 
 >**Insights**
 
-* "JET AIRWAYS" is the most demanding filght company.
-* The maximum price of tikcet was 79,512
-* The minimum price of ticket was 1759
-* The average price of ticket was 9,087.06
-* Least demanding flight is "GOAIR"
-* June is the peak month which means business will earn more profits whereas customers will face more rush in the specified month.
-* The more layover stops between source and destination , less the price of tickets.
-* We can see that their is zero to minimum earning of airline business in the months of February , July , August , October , November.
-* From different Sources the prices of flight tickets vary.
-* Delhi is the state which has the highest ticket price from source.
+>>* "JET AIRWAYS" is the most demanding filght company.
+>>* The maximum price of tikcet was 79,512
+>>* The minimum price of ticket was 1759
+>>* The average price of ticket was 9,087.06
+>>* Least demanding flight is "GOAIR"
+>>* June is the peak month which means business will earn more profits whereas customers will face more rush in the specified month.
+>>* The more layover stops between source and destination , less the price of tickets.
+>>* We can see that their is zero to minimum earning of airline business in the months of February , July , August , October , November.
+>>* From different Sources the prices of flight tickets vary.
+>>* Delhi is the state which has the highest ticket price from source.
 
 >**Conclutions**
 

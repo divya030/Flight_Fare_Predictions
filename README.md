@@ -26,6 +26,8 @@
 >**Conclutions**
 
 >>This project demonstrates the development of a predictive model for flight fare estimation using machine learning techniques.The model can be used to make informed decisions about flight bookings and plan trips more effectively. The dataset used in the project is publicly available and sourced from Kaggle.
+
 >>Various feature selection and model building techniques were applied to create an accurate and reliable prediction model.The model's performance has been improved through feature selection and hyperparameter tuning, ensuring a better user experience and more accurate predictions.
+
 >>By leveraging machine learning techniques, this project provides valuable insights into predicting flight fares, empowering travelers to plan their trips efficiently and make informed decisions about their flight bookings.
 

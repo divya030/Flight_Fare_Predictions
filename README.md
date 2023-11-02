@@ -8,11 +8,11 @@
 
 
 >**Technologies**
-* Python
-* Machine Learning
-* Feature Engineering
-* DataStax Astra
-* Flask
+>>* Python
+>>* Machine Learning
+>>* Feature Engineering
+>>* DataStax Astra
+>>* Flask
 
 >**Insights**
 

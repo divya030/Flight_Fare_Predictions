@@ -6,6 +6,26 @@
 
 >>The task in this project is to develop a predictive model that can accurately estimate the flight fares based on the given features. This will help travelers plan their trips more effectively and make informed decisions about flight bookings.
 
+>**Directory Tree**
+
+>> ├── static 
+│   ├── css
+├── template
+│   ├── home.html
+├── Procfile
+├── README.md
+├── app.py
+├── flight_price.ipynb
+├── flight_rf.pkl
+├── requirements.txt
+
+>**Technologies**
+>> Python
+>> Meachine Learning
+>> Feature Engineering
+>> DataStax Astra
+>> Flask
+
 >**Insights**
 
 >>* "JET AIRWAYS" is the most demanding filght company.
